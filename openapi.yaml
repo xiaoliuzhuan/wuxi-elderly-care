@@ -45,6 +45,35 @@ components:
         data:
           type: object
 
+    QueryResolutionMeta:
+      type: object
+      properties:
+        requestedFilters:
+          type: object
+          description: 用户原始传入的筛选条件。
+          additionalProperties: true
+        appliedFilters:
+          type: object
+          description: 实际命中结果时采用的筛选条件；发生兜底时会比 requestedFilters 更宽松。
+          additionalProperties: true
+        exactMatchCount:
+          type: integer
+          description: 严格按 requestedFilters 查询时命中的结果数。
+        fallbackApplied:
+          type: boolean
+          description: 是否触发了放宽筛选条件的兜底逻辑。
+        droppedFilters:
+          type: array
+          description: 兜底时被移除的筛选字段。
+          items:
+            type: string
+        fallbackStrategy:
+          type: string
+          description: 命中的兜底策略标识。
+        note:
+          type: string
+          description: 对当前兜底行为的简短说明。
+
     ElderlyActivity:
       type: object
       properties:
@@ -96,6 +125,8 @@ components:
           format: date
         totalCount:
           type: integer
+        meta:
+          $ref: "#/components/schemas/QueryResolutionMeta"
         activities:
           type: array
           items:
@@ -145,6 +176,8 @@ components:
       properties:
         totalCount:
           type: integer
+        meta:
+          $ref: "#/components/schemas/QueryResolutionMeta"
         courses:
           type: array
           items:
@@ -187,6 +220,8 @@ components:
       properties:
         totalCount:
           type: integer
+        meta:
+          $ref: "#/components/schemas/QueryResolutionMeta"
         clubs:
           type: array
           items:
@@ -237,6 +272,8 @@ components:
       properties:
         totalCount:
           type: integer
+        meta:
+          $ref: "#/components/schemas/QueryResolutionMeta"
         points:
           type: array
           items:
@@ -292,6 +329,8 @@ components:
       properties:
         totalCount:
           type: integer
+        meta:
+          $ref: "#/components/schemas/QueryResolutionMeta"
         stations:
           type: array
           items:

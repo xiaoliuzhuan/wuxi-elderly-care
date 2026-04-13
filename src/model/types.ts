@@ -13,6 +13,18 @@ export interface ApiResponse<T> {
   suggestion?: string;
 }
 
+export type QueryFilterValue = string | string[];
+
+export interface QueryResolutionMeta {
+  requestedFilters: Record<string, QueryFilterValue>;
+  appliedFilters: Record<string, QueryFilterValue>;
+  exactMatchCount: number;
+  fallbackApplied: boolean;
+  droppedFilters?: string[];
+  fallbackStrategy?: string;
+  note?: string;
+}
+
 // ---- 1. 文娱活动 ----
 
 export type ActivityCategory = 'culture' | 'sports' | 'health' | 'social' | 'other';
@@ -41,6 +53,7 @@ export interface ActivitiesResponse {
   date: string;
   activities: ElderlyActivity[];
   totalCount: number;
+  meta?: QueryResolutionMeta;
 }
 
 // ---- 2. 兴趣课程 ----
@@ -69,6 +82,7 @@ export interface ElderlyCourse {
 export interface CoursesResponse {
   courses: ElderlyCourse[];
   totalCount: number;
+  meta?: QueryResolutionMeta;
 }
 
 // ---- 3. 兴趣社团 ----
@@ -94,6 +108,7 @@ export interface ElderlyClub {
 export interface ClubsResponse {
   clubs: ElderlyClub[];
   totalCount: number;
+  meta?: QueryResolutionMeta;
 }
 
 // ---- 4. 惠老助餐点 ----
@@ -119,6 +134,7 @@ export interface MealServicePoint {
 export interface MealPointsResponse {
   points: MealServicePoint[];
   totalCount: number;
+  meta?: QueryResolutionMeta;
 }
 
 // ---- 5. 居家养老服务站 ----
@@ -148,6 +164,7 @@ export interface HomeCareStation {
 export interface HomeCareStationsResponse {
   stations: HomeCareStation[];
   totalCount: number;
+  meta?: QueryResolutionMeta;
 }
 
 // ---- CMS 内部 API 响应 ----

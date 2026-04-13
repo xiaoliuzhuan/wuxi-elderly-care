@@ -38,6 +38,8 @@ describe('GET /openapi/v1/elderly/activities', () => {
     expect(res.body.code).toBe('OK');
     expect(res.body.data.activities.length).toBeGreaterThan(0);
     expect(res.body.data.totalCount).toBeGreaterThan(0);
+    expect(res.body.data).toHaveProperty('meta');
+    expect(res.body.data.meta).toHaveProperty('fallbackApplied');
     expect(res.body.data.activities[0]).toHaveProperty('activityId');
     expect(res.body.data.activities[0]).toHaveProperty('name');
     expect(res.body.data.activities[0]).toHaveProperty('community');
@@ -73,6 +75,8 @@ describe('GET /openapi/v1/elderly/meal-points', () => {
     expect(res.status).toBe(200);
     expect(res.body.code).toBe('OK');
     expect(res.body.data.points.length).toBeGreaterThan(0);
+    expect(res.body.data).toHaveProperty('meta');
+    expect(res.body.data.meta).toHaveProperty('fallbackApplied');
     expect(res.body.data.points[0]).toHaveProperty('pointId');
     expect(res.body.data.points[0]).toHaveProperty('address');
     expect(res.body.data.points[0]).toHaveProperty('phone');

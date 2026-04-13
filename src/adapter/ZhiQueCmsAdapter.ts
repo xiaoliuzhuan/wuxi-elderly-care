@@ -78,9 +78,13 @@ interface RawStation {
   name?: string;
   labels?: string;
   address?: string;
+  telephone?: string;
+  phone?: string;
+  serviceHotline?: string;
   openTime?: string;
   remark?: string;
   image?: string;
+  responsePepole?: string;
 }
 
 export class ZhiQueCmsAdapter implements CmsReadOnlyAdapter {
@@ -99,7 +103,7 @@ export class ZhiQueCmsAdapter implements CmsReadOnlyAdapter {
     const filtered = activities
       .filter((activity) =>
         (!date || activity.activeTime?.startsWith(date)) &&
-        matchesText(activity.community, community) &&
+        matchesAnyText([activity.community, activity.siteName, activity.address], community) &&
         matchesCategory(activity.tyspe, category, activityCategoryAliases)
       )
       .map((activity) => mapActivity(activity, fetchedAt));
@@ -112,7 +116,7 @@ export class ZhiQueCmsAdapter implements CmsReadOnlyAdapter {
     const courses = await this.postList<RawCourse>('/api/foreign-api/course/list');
     const filtered = courses
       .filter((course) =>
-        matchesText(course.address, community) &&
+        matchesAnyText([course.address, course.title, course.intro], community) &&
         matchesCategory(course.type, category, courseCategoryAliases)
       )
       .map((course) => mapCourse(course, fetchedAt));
@@ -125,7 +129,7 @@ export class ZhiQueCmsAdapter implements CmsReadOnlyAdapter {
     const clubs = await this.postList<RawClub>('/api/foreign-api/club/list');
     const filtered = clubs
       .filter((club) =>
-        matchesText(club.community, community) &&
+        matchesAnyText([club.community, club.siteName, club.address], community) &&
         matchesCategory(club.clubType, category, clubCategoryAliases)
       )
       .map((club) => mapClub(club, fetchedAt));
@@ -138,8 +142,8 @@ export class ZhiQueCmsAdapter implements CmsReadOnlyAdapter {
     const points = await this.postList<RawMealPoint>('/api/foreign-api/foodsite/list');
     const filtered = points
       .filter((point) =>
-        matchesText(point.address, district) &&
-        matchesText(point.address, street)
+        matchesAnyText([point.name, point.address], district) &&
+        matchesAnyText([point.name, point.address], street)
       )
       .map((point) => mapMealPoint(point, fetchedAt));
 
@@ -151,8 +155,8 @@ export class ZhiQueCmsAdapter implements CmsReadOnlyAdapter {
     const stations = await this.postList<RawStation>('/api/foreign-api/site/list');
     const filtered = stations
       .filter((station) =>
-        matchesText(station.address, district) &&
-        matchesText(station.address, street) &&
+        matchesAnyText([station.name, station.address], district) &&
+        matchesAnyText([station.name, station.address], street) &&
         matchesCategory(`${station.labels ?? ''} ${station.remark ?? ''}`, service ? [service] : undefined, stationServiceAliases)
       )
       .map((station) => mapStation(station, fetchedAt));
@@ -291,15 +295,19 @@ function mapClub(raw: RawClub, fetchedAt: string): ElderlyClub {
 }
 
 function mapMealPoint(raw: RawMealPoint, fetchedAt: string): MealServicePoint {
+  const name = raw.name?.trim();
   const address = raw.address?.trim() || '地址待确认';
+  const district = extractDistrict(name, address);
+  const street = extractStreet(name, address);
+  const community = extractCommunity(name, address);
 
   return {
     pointId: stringifyId(raw.id, 'meal'),
-    name: raw.name?.trim() || '未命名助餐点',
+    name: name || '未命名助餐点',
     address,
-    district: extractArea(address, districtKeywords),
-    street: extractArea(address, streetKeywords),
-    community: extractArea(address, communityKeywords),
+    district,
+    street,
+    community,
     phone: raw.telephone?.trim() || '待确认',
     businessHours: '待确认',
     mealTypes: ['午餐'],
@@ -311,19 +319,22 @@ function mapMealPoint(raw: RawMealPoint, fetchedAt: string): MealServicePoint {
 
 function mapStation(raw: RawStation, fetchedAt: string): HomeCareStation {
   const features = splitLabels(raw.labels);
+  const name = raw.name?.trim();
+  const address = raw.address?.trim() || '地址待确认';
 
   return {
     stationId: stringifyId(raw.id, 'station'),
-    name: raw.name?.trim() || '未命名服务站',
-    address: raw.address?.trim() || '地址待确认',
-    district: extractArea(raw.address, districtKeywords),
-    street: extractArea(raw.address, streetKeywords),
-    community: extractArea(raw.address, communityKeywords),
-    phone: '待确认',
+    name: name || '未命名服务站',
+    address,
+    district: extractDistrict(name, address),
+    street: extractStreet(name, address),
+    community: extractCommunity(name, address),
+    phone: raw.telephone?.trim() || raw.phone?.trim() || '待确认',
+    serviceHotline: raw.serviceHotline?.trim() || undefined,
     businessHours: raw.openTime?.trim() || '待确认',
     services: inferServices(raw.labels, raw.remark),
     serviceDescription: raw.remark?.trim() || raw.labels?.trim() || '暂无服务说明',
-    coverageArea: raw.address?.trim() || '覆盖范围待确认',
+    coverageArea: address,
     operator: '知鹊平台',
     features,
     status: 'OPEN',
@@ -338,10 +349,10 @@ function stringifyId(value: string | number | undefined, prefix: string): string
   return `${prefix}_${randomUUID().slice(0, 8)}`;
 }
 
-function matchesText(value: string | undefined, query: string | undefined): boolean {
-  const normalizedQuery = query?.trim().toLowerCase();
+function matchesAnyText(values: Array<string | undefined>, query: string | undefined): boolean {
+  const normalizedQuery = normalizeText(query);
   if (!normalizedQuery) return true;
-  return (value ?? '').toLowerCase().includes(normalizedQuery);
+  return values.some((value) => normalizeText(value).includes(normalizedQuery));
 }
 
 function matchesCategory(
@@ -424,10 +435,50 @@ function inferServices(labels?: string, remark?: string): ServiceType[] {
   return matches.length > 0 ? matches.map((item) => item.service) : ['daily_care'];
 }
 
-function extractArea(address: string | undefined, keywords: string[]): string {
-  const haystack = address ?? '';
-  const matched = keywords.find((keyword) => haystack.includes(keyword));
-  return matched ?? '待确认';
+function extractDistrict(...values: Array<string | undefined>): string {
+  return findPattern(values, districtPattern) ?? '待确认';
+}
+
+function extractStreet(...values: Array<string | undefined>): string {
+  return findPattern(values.map(stripAdministrativePrefix), streetPattern) ?? '待确认';
+}
+
+function extractCommunity(...values: Array<string | undefined>): string {
+  return findPattern(values.map(stripAdministrativePrefix), communityPattern) ?? '待确认';
+}
+
+function findPattern(values: Array<string | undefined>, pattern: RegExp): string | undefined {
+  for (const value of values) {
+    if (!value) continue;
+    const matched = value.match(pattern)?.[1] ?? value.match(pattern)?.[0];
+    if (matched) {
+      return matched.trim();
+    }
+  }
+
+  return undefined;
+}
+
+function normalizeText(value: string | undefined): string {
+  return (value ?? '')
+    .toLowerCase()
+    .replace(/[()（）\[\]\-_/.,，。:：\s]+/g, '');
+}
+
+function stripAdministrativePrefix(value: string | undefined): string | undefined {
+  if (!value) return value;
+
+  const district = value.match(districtPattern)?.[0];
+  if (district) {
+    return value.slice(value.indexOf(district) + district.length);
+  }
+
+  const city = value.match(cityPattern)?.[0];
+  if (city) {
+    return value.slice(value.indexOf(city) + city.length);
+  }
+
+  return value;
 }
 
 function matchesAlias(value: string, aliases: string[]): boolean {
@@ -481,6 +532,7 @@ const serviceTypes: Array<{ service: ServiceType; aliases: string[] }> = [
   { service: 'bathing_assist', aliases: ['助浴'] },
 ];
 
-const districtKeywords = ['梁溪区', '锡山区', '滨湖区', '新吴区', '惠山区', '经开区'];
-const streetKeywords = ['街道', '镇'];
-const communityKeywords = ['社区'];
+const cityPattern = /无锡市/;
+const districtPattern = /(梁溪区|锡山区|滨湖区|新吴区|惠山区|经开区)/;
+const streetPattern = /([\u4e00-\u9fa5A-Za-z0-9·-]{1,20}(?:街道|镇))/;
+const communityPattern = /([\u4e00-\u9fa5A-Za-z0-9·-]{1,20}社区)/;
