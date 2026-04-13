@@ -296,13 +296,6 @@ wuxi-elderly-care/
 │   ├── install-client.mjs
 │   ├── start-local-mcp.sh
 │   └── start-local-rest.sh
-├── references/
-│   ├── client-compatibility-check-2026-04-13.md
-│   ├── elderly-care-openclaw-first-analysis-2026-04-13.md
-│   ├── elderly-care-project-analysis-2026-04-13.md
-│   ├── openclaw-release-guide.md
-│   ├── skill-ecosystem-research-2026-04-13.md
-│   └── tool-and-route-map.md
 ├── src/
 │   ├── mcp/
 │   │   └── index.ts
@@ -327,9 +320,3 @@ The most practical conclusion right now is:
 - Trae looks structurally compatible on this machine, but one full end-to-end product test is still recommended before making stronger public claims
 - the real integration boundary is not `SKILL.md`; it is whether the client has the bundled MCP server connected
 - for external distribution, the lightest configuration story is still just one `ELDERLY_SKILL_ACCESS_TOKEN`
-
-## References
-
-- [Client compatibility check](./references/client-compatibility-check-2026-04-13.md)
-- [OpenClaw release guide](./references/openclaw-release-guide.md)
-- [Tool and route map](./references/tool-and-route-map.md)

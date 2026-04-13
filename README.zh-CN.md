@@ -296,13 +296,6 @@ wuxi-elderly-care/
 │   ├── install-client.mjs
 │   ├── start-local-mcp.sh
 │   └── start-local-rest.sh
-├── references/
-│   ├── client-compatibility-check-2026-04-13.md
-│   ├── elderly-care-openclaw-first-analysis-2026-04-13.md
-│   ├── elderly-care-project-analysis-2026-04-13.md
-│   ├── openclaw-release-guide.md
-│   ├── skill-ecosystem-research-2026-04-13.md
-│   └── tool-and-route-map.md
 ├── src/
 │   ├── mcp/
 │   │   └── index.ts
@@ -327,9 +320,3 @@ wuxi-elderly-care/
 - Trae 在这台机器上已经能看到标准 skill 目录结构，但我还是建议你在真正对外写死之前，做一次完整的端到端实测
 - 真正的集成边界不是 `SKILL.md`，而是客户端有没有把这个仓库的 MCP server 接进去
 - 对外分发时，最轻的方式就是只让用户补一行 `ELDERLY_SKILL_ACCESS_TOKEN`
-
-## 参考文档
-
-- [客户端兼容性核验](./references/client-compatibility-check-2026-04-13.md)
-- [OpenClaw 发布说明](./references/openclaw-release-guide.md)
-- [工具与路由映射](./references/tool-and-route-map.md)
