@@ -139,13 +139,11 @@ export class ZhiQueCmsAdapter implements CmsReadOnlyAdapter {
 
   async getMealPoints(district?: string, street?: string): Promise<CmsMealPointsResponse> {
     const fetchedAt = new Date().toISOString();
-    const points = await this.postList<RawMealPoint>('/api/foreign-api/foodsite/list');
-    const filtered = points
-      .filter((point) =>
-        matchesAnyText([point.name, point.address], district) &&
-        matchesAnyText([point.name, point.address], street)
-      )
+    const points = (await this.postList<RawMealPoint>('/api/foreign-api/foodsite/list'))
       .map((point) => mapMealPoint(point, fetchedAt));
+    const filtered = points.filter((point) =>
+      matchesMealPointQuery(point, district, street)
+    );
 
     return { points: filtered };
   }
@@ -317,6 +315,17 @@ function mapMealPoint(raw: RawMealPoint, fetchedAt: string): MealServicePoint {
   };
 }
 
+function matchesMealPointQuery(
+  point: MealServicePoint,
+  district?: string,
+  street?: string
+): boolean {
+  return (
+    matchesAnyText([point.district, point.street, point.community, point.name, point.address], district) &&
+    matchesAnyText([point.street, point.community, point.name, point.address], street)
+  );
+}
+
 function mapStation(raw: RawStation, fetchedAt: string): HomeCareStation {
   const features = splitLabels(raw.labels);
   const name = raw.name?.trim();
@@ -436,7 +445,17 @@ function inferServices(labels?: string, remark?: string): ServiceType[] {
 }
 
 function extractDistrict(...values: Array<string | undefined>): string {
-  return findPattern(values, districtPattern) ?? '待确认';
+  const direct = findPattern(values, districtPattern);
+  if (direct) {
+    return direct;
+  }
+
+  const street = findPattern(values.map(stripAdministrativePrefix), streetPattern);
+  if (street && streetDistrictAliases[street]) {
+    return streetDistrictAliases[street];
+  }
+
+  return '待确认';
 }
 
 function extractStreet(...values: Array<string | undefined>): string {
@@ -536,3 +555,11 @@ const cityPattern = /无锡市/;
 const districtPattern = /(梁溪区|锡山区|滨湖区|新吴区|惠山区|经开区)/;
 const streetPattern = /([\u4e00-\u9fa5A-Za-z0-9·-]{1,20}(?:街道|镇))/;
 const communityPattern = /([\u4e00-\u9fa5A-Za-z0-9·-]{1,20}社区)/;
+const streetDistrictAliases: Record<string, string> = {
+  旺庄街道: '新吴区',
+  新安街道: '新吴区',
+  江溪街道: '新吴区',
+  梅村街道: '新吴区',
+  鸿山街道: '新吴区',
+  硕放街道: '新吴区',
+};

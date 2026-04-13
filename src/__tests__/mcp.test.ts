@@ -83,6 +83,46 @@ describe('MCP tools', () => {
     expect(result.content[0].text).toContain('原始条件为日期=2026-04-14，社区=尚泽社区；实际命中条件为日期=2026-04-14。');
   });
 
+  it('should avoid claiming an unfiltered large meal-point list is already fully displayed', async () => {
+    const largeListService = {
+      getActivities: async () => ({ activities: [], totalCount: 0 }),
+      getCourses: async () => ({ courses: [], totalCount: 0 }),
+      getClubs: async () => ({ clubs: [], totalCount: 0 }),
+      getMealPoints: async () => ({
+        points: Array.from({ length: 10 }, (_, index) => ({
+          pointId: `MEAL_${index + 1}`,
+          name: `示例助餐点${index + 1}`,
+          address: `示例地址${index + 1}`,
+          district: '待确认',
+          street: '待确认',
+          community: '待确认',
+          phone: '待确认',
+          businessHours: '待确认',
+          mealTypes: ['午餐'],
+          priceRange: '待确认',
+          status: 'OPEN' as const,
+          lastUpdatedAt: '2026-04-13T10:00:00+08:00',
+        })),
+        totalCount: 501,
+        meta: {
+          requestedFilters: {},
+          appliedFilters: {},
+          exactMatchCount: 501,
+          fallbackApplied: false,
+        },
+      }),
+      getHomeCareStations: async () => ({ stations: [], totalCount: 0 }),
+    } as unknown as ElderlyService;
+
+    const result = await handleToolCall(largeListService, 'get_meal_points', {});
+
+    expect(result).not.toHaveProperty('isError', true);
+    expect(result.content[0].text).toContain('当前共查到 501 个助餐点。');
+    expect(result.content[0].text).toContain('结果较多，建议告诉我区县、街道或社区，我可以继续精确筛选。');
+    expect(result.content[0].text).not.toContain('助餐点列表');
+    expect(result.content[0].text).not.toContain('已先展示前 10 条');
+  });
+
   it('should return an error for unknown tools', async () => {
     const result = await handleToolCall(service, 'unknown_tool', {});
 

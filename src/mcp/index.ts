@@ -275,6 +275,11 @@ function formatMealPointsResult(data: MealPointsResponse): string {
     street: '街道',
   });
 
+  if (shouldCondenseMealPointPreview(meta, data.totalCount)) {
+    lines.push('结果较多，建议告诉我区县、街道或社区，我可以继续精确筛选。');
+    return lines.join('\n');
+  }
+
   appendPreview(
     lines,
     '助餐点列表',
@@ -525,6 +530,19 @@ function appendPreview<T>(
   if (items.length > PREVIEW_LIMIT) {
     lines.push(`已先展示前 ${PREVIEW_LIMIT} 条，其余 ${items.length - PREVIEW_LIMIT} 条可按需继续展开。`);
   }
+}
+
+function shouldCondenseMealPointPreview(
+  meta: QueryResolutionMeta | undefined,
+  totalCount: number
+): boolean {
+  if (!meta) return false;
+
+  return (
+    totalCount > PREVIEW_LIMIT &&
+    Object.keys(meta.requestedFilters).length === 0 &&
+    !meta.fallbackApplied
+  );
 }
 
 function formatFilters(
