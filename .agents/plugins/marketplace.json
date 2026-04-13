@@ -1,0 +1,20 @@
+{
+  "name": "wuxi-local-skills",
+  "interface": {
+    "displayName": "Wuxi Local Skills"
+  },
+  "plugins": [
+    {
+      "name": "skill-elderly-care",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

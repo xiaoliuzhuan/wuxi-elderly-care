@@ -1,0 +1,54 @@
+{
+  "name": "skill-elderly-care",
+  "version": "1.0.0",
+  "description": "居家养老服务 Skill repo — OpenClaw skill + Codex plugin packaging + MCP server + REST API",
+  "main": "dist/index.js",
+  "bin": {
+    "skill-elderly-care-mcp": "dist/mcp/index.js"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=development ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:mock": "USE_MOCK_CMS=true NODE_ENV=development ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:staging": "NODE_ENV=staging ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:mcp": "NODE_ENV=development ts-node-dev --respawn --transpile-only src/mcp/index.ts",
+    "build": "tsc",
+    "setup:client": "node scripts/install-client.mjs",
+    "setup:common": "node scripts/install-client.mjs --client openclaw,claude,cursor,codex",
+    "setup:openclaw": "node scripts/install-client.mjs --client openclaw",
+    "setup:claude": "node scripts/install-client.mjs --client claude",
+    "setup:cursor": "node scripts/install-client.mjs --client cursor",
+    "setup:codex": "node scripts/install-client.mjs --client codex",
+    "setup:windsurf": "node scripts/install-client.mjs --client windsurf",
+    "setup:trae": "node scripts/install-client.mjs --client trae",
+    "setup:all": "node scripts/install-client.mjs --all",
+    "start": "node dist/index.js",
+    "start:production": "NODE_ENV=production node dist/index.js",
+    "start:mcp": "node dist/mcp/index.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "axios": "^1.7.7",
+    "cockatiel": "^3.2.1",
+    "dotenv": "^17.4.1",
+    "express": "^4.21.0",
+    "ioredis": "^5.4.1",
+    "uuid": "^10.0.0",
+    "winston": "^3.14.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^22.7.4",
+    "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
+    "jest": "^29.7.0",
+    "nock": "^13.5.5",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.2"
+  }
+}

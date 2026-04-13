@@ -1,0 +1,38 @@
+{
+  "name": "skill-elderly-care",
+  "version": "1.0.0",
+  "description": "Wuxi elderly-care skill with a bundled MCP server and local REST fallback.",
+  "author": {
+    "name": "elderly-care skill team",
+    "url": "https://github.com/xiaoliuzhuan"
+  },
+  "homepage": "https://github.com/xiaoliuzhuan/wuxi-elderly-care",
+  "repository": "https://github.com/xiaoliuzhuan/wuxi-elderly-care",
+  "license": "MIT",
+  "keywords": [
+    "elderly-care",
+    "wuxi",
+    "mcp",
+    "skill",
+    "openclaw",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Wuxi Elderly Care",
+    "shortDescription": "Query local elderly-care services in Wuxi",
+    "longDescription": "Package the Wuxi elderly-care workflow together with its bundled local MCP server so this repository can be installed as a reusable Codex plugin-shaped package.",
+    "developerName": "elderly-care skill team",
+    "category": "Productivity",
+    "capabilities": [
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Find meal service points in Liangxi district",
+      "List nearby home-care stations in Wuxi",
+      "Check senior courses and activities in Wuxi"
+    ],
+    "brandColor": "#0F766E"
+  }
+}

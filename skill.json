@@ -1,0 +1,141 @@
+{
+  "manifestVersion": 1,
+  "name": "elderly-care",
+  "title": "elderly-care",
+  "description": "OpenClaw-first elderly-care skill. Prefer local MCP tools, fallback to local REST API.",
+  "preferredPlatform": "openclaw",
+  "entry": {
+    "skillFile": "SKILL.md"
+  },
+  "codexPlugin": {
+    "manifestFile": ".codex-plugin/plugin.json",
+    "marketplaceFile": ".agents/plugins/marketplace.json",
+    "mcpConfigFile": ".mcp.json",
+    "notes": [
+      "The repo root is also a Codex plugin root so it can be installed through a repo or personal marketplace without repackaging.",
+      "The bundled marketplace entry points to `./`, which means the plugin source is this repository itself.",
+      "The packaged skill copy for the plugin lives under `skills/elderly-care/SKILL.md`."
+    ]
+  },
+  "bundledRuntimeFile": ".env.skill",
+  "localOverridesFile": ".env.local",
+  "setup": {
+    "firstRun": [
+      "npm run setup:openclaw",
+      "npm run setup:claude",
+      "npm run setup:cursor",
+      "npm run setup:codex"
+    ],
+    "notes": [
+      "The setup:* scripts can install the skill and write MCP config for supported clients.",
+      "The repo already ships a bundled skill-scoped upstream token, so supported clients can use the skill right after setup.",
+      "Windsurf and Trae currently install the skill and print an MCP snippet for manual paste.",
+      "Prefer ELDERLY_SKILL_ACCESS_TOKEN for this skill's upstream access instead of exposing three separate ZhiQue fields.",
+      "For Codex, the repo now also ships plugin packaging metadata so it can participate in repo-local or personal plugin marketplaces."
+    ]
+  },
+  "install": {
+    "manualClonePaths": {
+      "openclaw": "~/skills/elderly-care/",
+      "qoder": ".qoder/skills/elderly-care/",
+      "cursor": "~/.cursor/skills/elderly-care/",
+      "trae": "~/.trae/skills/elderly-care/",
+      "windsurf": "~/.windsurf/skills/elderly-care/",
+      "claude_code": "~/.claude/skills/elderly-care/",
+      "generic": ".agents/skills/elderly-care/",
+      "codex_user": "~/.codex/skills/elderly-care/"
+    },
+    "openclaw": {
+      "localWorkspacePath": "~/skills/elderly-care/",
+      "futureClawHubInstall": "openclaw skills install elderly-care"
+    }
+  },
+  "clients": {
+    "openclaw": {
+      "skillLoading": "verified",
+      "directMcpTools": "auto_configured_by_setup_script"
+    },
+    "claude_code": {
+      "skillLoading": "verified",
+      "directMcpTools": "auto_configured_by_setup_script"
+    },
+    "windsurf": {
+      "skillLoading": "verified",
+      "directMcpTools": "manual_snippet_after_setup_script"
+    },
+    "cursor": {
+      "skillLoading": "locally_verified",
+      "directMcpTools": "auto_configured_by_setup_script"
+    },
+    "trae": {
+      "skillLoading": "locally_verified",
+      "directMcpTools": "manual_snippet_after_setup_script"
+    },
+    "codex": {
+      "skillLoading": "verified",
+      "directMcpTools": "auto_configured_by_setup_script"
+    }
+  },
+  "backends": {
+    "mcp": {
+      "mode": "preferred",
+      "localCommand": "./scripts/start-local-mcp.sh",
+      "devCommand": "npm run dev:mcp",
+      "notes": [
+        "Use this for direct get_elderly_* tool exposure.",
+        "The startup script already reads bundled runtime config from .env.skill and optional local overrides from .env.local."
+      ],
+      "tools": [
+        "get_elderly_activities",
+        "get_elderly_courses",
+        "get_elderly_clubs",
+        "get_meal_points",
+        "get_home_care_stations"
+      ]
+    },
+    "rest": {
+      "mode": "fallback",
+      "localCommand": "./scripts/start-local-rest.sh",
+      "baseUrl": "http://127.0.0.1:3200/openapi/v1/elderly",
+      "authEnv": "ELDERLY_SKILL_API_TOKEN",
+      "notes": [
+        "Use this when MCP has not been connected yet.",
+        "REST fallback depends on the client environment being allowed to make local HTTP requests.",
+        "The local API token is scoped to this skill's own REST fallback.",
+        "The startup script already reads bundled runtime config from .env.skill and optional local overrides from .env.local."
+      ],
+      "routes": [
+        {
+          "name": "activities",
+          "method": "GET",
+          "path": "/activities",
+          "query": ["date", "community", "category"]
+        },
+        {
+          "name": "courses",
+          "method": "GET",
+          "path": "/courses",
+          "query": ["community", "category"]
+        },
+        {
+          "name": "clubs",
+          "method": "GET",
+          "path": "/clubs",
+          "query": ["community", "category"]
+        },
+        {
+          "name": "meal-points",
+          "method": "GET",
+          "path": "/meal-points",
+          "query": ["district", "street"]
+        },
+        {
+          "name": "home-care-stations",
+          "method": "GET",
+          "path": "/home-care-stations",
+          "query": ["district", "street", "service"]
+        }
+      ]
+    }
+  }
+}

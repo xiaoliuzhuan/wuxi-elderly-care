@@ -1,0 +1,497 @@
+openapi: 3.0.3
+info:
+  title: 居家养老服务信息查询 API
+  description: |
+    提供无锡本地化的居家养老服务信息查询能力。
+    所有接口均为只读 GET 请求，需要 Bearer Token 鉴权。
+    当前覆盖社区活动、兴趣课程、兴趣社团、惠老助餐点、居家养老服务站 5 类数据。
+  version: "1.0.0"
+  contact:
+    name: elderly-care skill team
+
+servers:
+  - url: http://localhost:3200/openapi/v1/elderly
+    description: 本地开发
+  - url: https://your-domain.example.com/openapi/v1/elderly
+    description: 生产环境示例
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: 渠道 Bearer Token
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "OK"
+        message:
+          type: string
+          example: "success"
+        traceId:
+          type: string
+          example: "trace_abc123"
+        retryable:
+          type: boolean
+        suggestion:
+          type: string
+        data:
+          type: object
+
+    ElderlyActivity:
+      type: object
+      properties:
+        activityId:
+          type: string
+          example: "ACT_001"
+        name:
+          type: string
+          example: "重阳节社区联欢"
+        category:
+          type: string
+          enum: [culture, sports, health, social, other]
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        location:
+          type: string
+        community:
+          type: string
+        organizer:
+          type: string
+        targetAge:
+          type: string
+        maxParticipants:
+          type: integer
+        currentParticipants:
+          type: integer
+        status:
+          type: string
+          enum: [UPCOMING, ONGOING, FULL, CANCELLED]
+        registrationDeadline:
+          type: string
+        contactPhone:
+          type: string
+        lastUpdatedAt:
+          type: string
+          format: date-time
+
+    ActivitiesData:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        totalCount:
+          type: integer
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/ElderlyActivity"
+
+    ElderlyCourse:
+      type: object
+      properties:
+        courseId:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+          enum: [calligraphy, painting, music, dance, digital, health, handicraft, language, other]
+        description:
+          type: string
+        instructor:
+          type: string
+        schedule:
+          type: string
+        location:
+          type: string
+        community:
+          type: string
+        semester:
+          type: string
+        totalSessions:
+          type: integer
+        remainingSlots:
+          type: integer
+        fee:
+          type: string
+        targetAge:
+          type: string
+        contactPhone:
+          type: string
+        status:
+          type: string
+          enum: [ENROLLING, FULL, ONGOING, COMPLETED]
+        lastUpdatedAt:
+          type: string
+          format: date-time
+
+    CoursesData:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        courses:
+          type: array
+          items:
+            $ref: "#/components/schemas/ElderlyCourse"
+
+    ElderlyClub:
+      type: object
+      properties:
+        clubId:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+          enum: [tai_chi, dance, chess, singing, photography, gardening, reading, calligraphy, sports, other]
+        description:
+          type: string
+        meetingSchedule:
+          type: string
+        meetingLocation:
+          type: string
+        community:
+          type: string
+        memberCount:
+          type: integer
+        leader:
+          type: string
+        contactPhone:
+          type: string
+        isRecruiting:
+          type: boolean
+        fee:
+          type: string
+        lastUpdatedAt:
+          type: string
+          format: date-time
+
+    ClubsData:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        clubs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ElderlyClub"
+
+    MealServicePoint:
+      type: object
+      properties:
+        pointId:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        district:
+          type: string
+        street:
+          type: string
+        community:
+          type: string
+        phone:
+          type: string
+        businessHours:
+          type: string
+        mealTypes:
+          type: array
+          items:
+            type: string
+        priceRange:
+          type: string
+        subsidyInfo:
+          type: string
+        capacity:
+          type: integer
+        features:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [OPEN, CLOSED, TEMPORARILY_CLOSED]
+        lastUpdatedAt:
+          type: string
+          format: date-time
+
+    MealPointsData:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        points:
+          type: array
+          items:
+            $ref: "#/components/schemas/MealServicePoint"
+
+    HomeCareStation:
+      type: object
+      properties:
+        stationId:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        district:
+          type: string
+        street:
+          type: string
+        community:
+          type: string
+        phone:
+          type: string
+        serviceHotline:
+          type: string
+        businessHours:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+            enum: [daily_care, medical, rehabilitation, mental_health, housekeeping, emergency, meal_delivery, bathing_assist]
+        serviceDescription:
+          type: string
+        coverageArea:
+          type: string
+        operator:
+          type: string
+        rating:
+          type: number
+        features:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [OPEN, CLOSED, TEMPORARILY_CLOSED]
+        lastUpdatedAt:
+          type: string
+          format: date-time
+
+    HomeCareStationsData:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        stations:
+          type: array
+          items:
+            $ref: "#/components/schemas/HomeCareStation"
+
+paths:
+  /activities:
+    get:
+      operationId: get_elderly_activities
+      summary: 查询社区文娱活动
+      description: 返回适合老年群体的社区活动列表，支持按日期、社区、活动类别筛选。
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 查询日期，格式 YYYY-MM-DD。不传则默认当天。
+        - name: community
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 社区名称筛选，如“清名桥社区”。
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 活动类别筛选，逗号分隔。可选值包括 culture、sports、health、social、other。
+      responses:
+        "200":
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ActivitiesData"
+        "400":
+          description: 参数错误
+        "401":
+          description: 未授权
+        "429":
+          description: 限流
+
+  /courses:
+    get:
+      operationId: get_elderly_courses
+      summary: 查询老年大学兴趣课程
+      description: 返回兴趣课程列表，支持按社区和课程类别筛选。
+      parameters:
+        - name: community
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 社区或区域关键字筛选。
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 课程类别筛选，逗号分隔。可选值包括 calligraphy、painting、music、dance、digital、health、handicraft、language、other。
+      responses:
+        "200":
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/CoursesData"
+        "400":
+          description: 参数错误
+        "401":
+          description: 未授权
+        "429":
+          description: 限流
+
+  /clubs:
+    get:
+      operationId: get_elderly_clubs
+      summary: 查询兴趣爱好社团
+      description: 返回适合老年群体参与的兴趣社团列表，支持按社区和类别筛选。
+      parameters:
+        - name: community
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 社区名称筛选。
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 社团类别筛选，逗号分隔。可选值包括 tai_chi、dance、chess、singing、photography、gardening、reading、calligraphy、sports、other。
+      responses:
+        "200":
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ClubsData"
+        "400":
+          description: 参数错误
+        "401":
+          description: 未授权
+        "429":
+          description: 限流
+
+  /meal-points:
+    get:
+      operationId: get_meal_points
+      summary: 查询惠老助餐点
+      description: 返回惠老助餐点列表，支持按区县和街道筛选。
+      parameters:
+        - name: district
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 区县筛选，如“梁溪区”。
+        - name: street
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 街道筛选，如“清名桥街道”。
+      responses:
+        "200":
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/MealPointsData"
+        "400":
+          description: 参数错误
+        "401":
+          description: 未授权
+        "429":
+          description: 限流
+
+  /home-care-stations:
+    get:
+      operationId: get_home_care_stations
+      summary: 查询居家养老服务站
+      description: 返回居家养老服务站列表，支持按区县、街道和服务类型筛选。
+      parameters:
+        - name: district
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 区县筛选。
+        - name: street
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 街道筛选。
+        - name: service
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 服务类型筛选，可选值包括 daily_care、medical、rehabilitation、mental_health、housekeeping、emergency、meal_delivery、bathing_assist。
+      responses:
+        "200":
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/HomeCareStationsData"
+        "400":
+          description: 参数错误
+        "401":
+          description: 未授权
+        "429":
+          description: 限流

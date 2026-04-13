@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+
+ROOT_DIR=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+DEFAULT_ENV_FILE="$ROOT_DIR/.env.skill"
+ENV_FILE=${ELDERLY_SKILL_ENV_FILE:-"$ROOT_DIR/.env.local"}
+
+if [ -f "$DEFAULT_ENV_FILE" ]; then
+  set -a
+  . "$DEFAULT_ENV_FILE"
+  set +a
+fi
+
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  . "$ENV_FILE"
+  set +a
+fi
+
+TOKEN=${ELDERLY_SKILL_API_TOKEN:-${ELDERLY_SKILL_TOKEN:-sk-default-dev-token}}
+
+if [ -z "${CHANNELS_CONFIG:-}" ]; then
+  export CHANNELS_CONFIG="[{\"channelId\":\"ch_local\",\"name\":\"本地技能渠道\",\"token\":\"$TOKEN\",\"rateLimit\":50,\"enabled\":true}]"
+fi
+
+if [ ! -f "$ROOT_DIR/dist/index.js" ]; then
+  echo "Building skill-elderly-care REST runtime..." >&2
+  npm --prefix "$ROOT_DIR" run build >/dev/null
+fi
+
+exec node "$ROOT_DIR/dist/index.js"
