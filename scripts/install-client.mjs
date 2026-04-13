@@ -307,16 +307,16 @@ function installSkillLink(skillBaseDir, label, dryRun) {
   return destination;
 }
 
-function detectOpenClawSkillBase(homeDir) {
+function detectOpenClawSkillBase(homeDir, data) {
   const configPath = path.join(homeDir, ".openclaw", "openclaw.json");
   const fallback = path.join(homeDir, "skills");
 
-  if (!fs.existsSync(configPath)) {
+  if (!data && !fs.existsSync(configPath)) {
     return fallback;
   }
 
-  const data = readJsonFile(configPath, {});
-  const paths = data.skills?.discover?.paths;
+  const configData = data ?? readJsonFile(configPath, {});
+  const paths = configData.skills?.discover?.paths;
 
   if (!Array.isArray(paths)) {
     return fallback;
@@ -334,6 +334,27 @@ function detectOpenClawSkillBase(homeDir) {
   return preferred || fallback;
 }
 
+function isInsideDir(parentDir, childPath) {
+  const parent = path.resolve(parentDir);
+  const child = path.resolve(childPath);
+  const relative = path.relative(parent, child);
+
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function ensurePathInList(items, value) {
+  const normalized = path.resolve(value);
+  const existing = items.find(
+    (item) => typeof item === "string" && path.resolve(item) === normalized,
+  );
+
+  if (existing) {
+    return { items, added: false };
+  }
+
+  return { items: [...items, normalized], added: true };
+}
+
 function detectCodexSkillBase(homeDir) {
   const codexSkillDir = path.join(homeDir, ".codex", "skills");
   if (fs.existsSync(codexSkillDir)) {
@@ -349,9 +370,31 @@ function configureOpenClaw(homeDir, dryRun) {
   }
 
   const data = readJsonFile(configPath, {});
+  const skillBaseDir = detectOpenClawSkillBase(homeDir, data);
   data.mcp ||= {};
   data.mcp.servers ||= {};
   data.mcp.servers[SKILL_NAME] = createMcpServerConfig();
+
+  data.skills ||= {};
+  data.skills.load ||= {};
+  const extraDirs = Array.isArray(data.skills.load.extraDirs)
+    ? data.skills.load.extraDirs.filter((item) => typeof item === "string")
+    : [];
+
+  if (!isInsideDir(skillBaseDir, ROOT_DIR)) {
+    const ensured = ensurePathInList(extraDirs, ROOT_DIR);
+    data.skills.load.extraDirs = ensured.items;
+
+    if (ensured.added) {
+      logStep(
+        `OpenClaw: added repo root to skills.load.extraDirs so symlinked skill installs outside ${skillBaseDir} still load correctly`,
+      );
+    } else {
+      logStep(
+        `OpenClaw: kept existing skills.load.extraDirs entry for repo root ${ROOT_DIR}`,
+      );
+    }
+  }
 
   backupFile(configPath, dryRun);
   writeJsonFile(configPath, data, dryRun);

@@ -105,6 +105,7 @@ npm run setup:all
 - 执行 `npm run build`
 - 把 skill 安装到对应客户端的用户级 skill 目录
 - 对支持的客户端自动注册内置 MCP server
+- 对 OpenClaw，如果仓库真实路径不在 skill 根目录内，会自动把真实仓库目录补进 `skills.load.extraDirs`
 
 对 `OpenClaw`、`Claude Code`、`Cursor` 和 `Codex` 来说，这意味着 setup 跑完后就能直接使用，不需要用户再手动补环境变量。
 
@@ -271,7 +272,7 @@ npm run setup:codex
 
 客户端 | MCP 接法
 --- | ---
-OpenClaw | `npm run setup:openclaw` 会把 `elderly-care` 写入 `~/.openclaw/openclaw.json` 的 `mcp.servers`
+OpenClaw | `npm run setup:openclaw` 会把 `elderly-care` 写入 `~/.openclaw/openclaw.json` 的 `mcp.servers`，并在需要时自动补 `skills.load.extraDirs`
 Claude Code | `npm run setup:claude` 会调用 `claude mcp add -s user`
 Windsurf | `npm run setup:windsurf` 会安装 skill，并打印 MCP 配置片段
 Cursor | `npm run setup:cursor` 会写入 `~/.cursor/mcp.json`

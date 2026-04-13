@@ -105,6 +105,7 @@ These scripts automatically:
 - run `npm run build`
 - install the skill into the target client's user-level skill directory
 - auto-register the bundled MCP server for supported clients
+- for OpenClaw, if the real repo path lives outside the configured skill root, add that real path to `skills.load.extraDirs` automatically
 
 For `OpenClaw`, `Claude Code`, `Cursor`, and `Codex`, that means users can start using the skill right after setup without manually filling environment variables.
 
@@ -271,7 +272,7 @@ For clients that use JSON-style MCP config files, use a shape like this:
 
 Client | MCP hookup
 --- | ---
-OpenClaw | `npm run setup:openclaw` writes `elderly-care` into `~/.openclaw/openclaw.json` under `mcp.servers`
+OpenClaw | `npm run setup:openclaw` writes `elderly-care` into `~/.openclaw/openclaw.json` under `mcp.servers` and adds `skills.load.extraDirs` when needed
 Claude Code | `npm run setup:claude` runs `claude mcp add -s user`
 Windsurf | `npm run setup:windsurf` installs the skill and prints an MCP snippet
 Cursor | `npm run setup:cursor` writes `~/.cursor/mcp.json`
