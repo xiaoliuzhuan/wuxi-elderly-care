@@ -106,6 +106,7 @@ npm run setup:all
 - 把 skill 安装到对应客户端的用户级 skill 目录
 - 对支持的客户端自动注册内置 MCP server
 - 对 OpenClaw，如果仓库真实路径不在 skill 根目录内，会自动把真实仓库目录补进 `skills.load.extraDirs`
+- 如果发现同名旧软链，setup 脚本会提示是否替换；非交互场景可加 `--replace-existing-link`
 
 对 `OpenClaw`、`Claude Code`、`Cursor` 和 `Codex` 来说，这意味着 setup 跑完后就能直接使用，不需要用户再手动补环境变量。
 

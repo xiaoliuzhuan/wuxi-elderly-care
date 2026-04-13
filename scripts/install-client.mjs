@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import readline from "node:readline/promises";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -33,6 +34,7 @@ Options:
   --client <clients>     Client names: ${SUPPORTED_CLIENTS.join(", ")}
   --all                  Install for all supported clients
   --dry-run              Print actions without changing anything
+  --replace-existing-link Replace an existing skill symlink that points elsewhere
   --skip-bootstrap       Skip runtime env check, npm install, and build
   --skip-skill           Skip skill directory installation
   --skip-mcp             Skip MCP registration
@@ -45,6 +47,7 @@ function parseArgs(argv) {
   const options = {
     clients: [],
     dryRun: false,
+    replaceExistingLink: false,
     skipBootstrap: false,
     skipSkill: false,
     skipMcp: false,
@@ -76,6 +79,11 @@ function parseArgs(argv) {
 
     if (arg === "--dry-run") {
       options.dryRun = true;
+      continue;
+    }
+
+    if (arg === "--replace-existing-link") {
+      options.replaceExistingLink = true;
       continue;
     }
 
@@ -277,15 +285,98 @@ function createSnippetText() {
   return JSON.stringify(snippet, null, 2);
 }
 
-function installSkillLink(skillBaseDir, label, dryRun) {
+function readExistingLinkTarget(destination) {
+  try {
+    return fs.realpathSync(destination);
+  } catch {
+    try {
+      const rawTarget = fs.readlinkSync(destination);
+      return path.resolve(path.dirname(destination), rawTarget);
+    } catch {
+      return "(unresolved link target)";
+    }
+  }
+}
+
+async function confirmReplaceExistingLink(label, destination, existingTarget) {
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    return false;
+  }
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  try {
+    const answer = await rl.question(
+      `${label}: found an existing skill symlink at ${destination} pointing to ${existingTarget}. Replace it with ${ROOT_DIR}? [y/N] `,
+    );
+    return ["y", "yes"].includes(answer.trim().toLowerCase());
+  } finally {
+    rl.close();
+  }
+}
+
+async function installSkillLink(skillBaseDir, label, dryRun, replaceExistingLink = false) {
   const destination = path.join(skillBaseDir, SKILL_NAME);
   ensureDir(skillBaseDir, dryRun);
 
-  if (fs.existsSync(destination)) {
-    const realPath = fs.realpathSync(destination);
+  let stats = null;
+  try {
+    stats = fs.lstatSync(destination);
+  } catch (error) {
+    if (error && error.code !== "ENOENT") {
+      throw error;
+    }
+  }
+
+  if (stats) {
+    const realPath = stats.isSymbolicLink()
+      ? readExistingLinkTarget(destination)
+      : fs.realpathSync(destination);
+
     if (realPath === ROOT_DIR) {
       logStep(`${label}: skill already installed at ${destination}`);
       return destination;
+    }
+
+    if (stats.isSymbolicLink()) {
+      const existingTarget = readExistingLinkTarget(destination);
+
+      if (dryRun) {
+        if (replaceExistingLink) {
+          logStep(
+            `${label}: would replace existing symlink ${destination} -> ${existingTarget} with ${ROOT_DIR}`,
+          );
+        } else {
+          logStep(
+            `${label}: would prompt to replace existing symlink ${destination} -> ${existingTarget}`,
+          );
+        }
+        return destination;
+      }
+
+      const shouldReplace =
+        replaceExistingLink ||
+        (await confirmReplaceExistingLink(label, destination, existingTarget));
+
+      if (shouldReplace) {
+        fs.unlinkSync(destination);
+        fs.symlinkSync(
+          ROOT_DIR,
+          destination,
+          process.platform === "win32" ? "junction" : "dir",
+        );
+        logStep(
+          `${label}: replaced existing symlink ${destination} -> ${existingTarget} with ${ROOT_DIR}`,
+        );
+        return destination;
+      }
+
+      throw new Error(
+        `${label}: destination already exists as a symlink pointing elsewhere: ${destination}. Re-run with --replace-existing-link to replace it non-interactively.`,
+      );
     }
 
     throw new Error(
@@ -533,7 +624,7 @@ function getClientConfig(client, homeDir) {
   return configs[client];
 }
 
-function main() {
+async function main() {
   const options = parseArgs(process.argv.slice(2));
 
   console.log(`Skill repo: ${ROOT_DIR}`);
@@ -554,7 +645,12 @@ function main() {
     console.log(`Setting up ${config.label}`);
 
     if (!options.skipSkill) {
-      installSkillLink(config.skillBaseDir, config.label, options.dryRun);
+      await installSkillLink(
+        config.skillBaseDir,
+        config.label,
+        options.dryRun,
+        options.replaceExistingLink,
+      );
     }
 
     if (!options.skipMcp) {
@@ -588,9 +684,7 @@ function main() {
   console.log("- Use .env.local only if you intentionally want to override the bundled defaults.");
 }
 
-try {
-  main();
-} catch (error) {
+main().catch((error) => {
   console.error(`Setup failed: ${error.message}`);
   process.exit(1);
-}
+});

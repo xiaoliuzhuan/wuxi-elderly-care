@@ -106,6 +106,7 @@ These scripts automatically:
 - install the skill into the target client's user-level skill directory
 - auto-register the bundled MCP server for supported clients
 - for OpenClaw, if the real repo path lives outside the configured skill root, add that real path to `skills.load.extraDirs` automatically
+- if an older skill symlink with the same name already exists, prompt to replace it; for non-interactive runs, use `--replace-existing-link`
 
 For `OpenClaw`, `Claude Code`, `Cursor`, and `Codex`, that means users can start using the skill right after setup without manually filling environment variables.
 
