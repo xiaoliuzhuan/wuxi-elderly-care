@@ -3,7 +3,7 @@
     "elderly-care": {
       "command": "./scripts/start-local-mcp.sh",
       "args": [],
-      "note": "Bundled local stdio MCP server. Requires Node.js. If build artifacts are missing, the startup script runs `npm run build` before launching."
+      "note": "Bundled local stdio MCP server. Requires Node.js. If build artifacts are missing or stale, the startup script runs `npm run build` before launching."
     }
   }
 }
