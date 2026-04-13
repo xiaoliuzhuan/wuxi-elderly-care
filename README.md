@@ -51,6 +51,18 @@ Clubs | "What elderly clubs are nearby?" | `get_elderly_clubs` | `GET /openapi/v
 Meal Points | "Which meal service points are available on Wangzhuang Street in Xinwu District?" | `get_meal_points` | `GET /openapi/v1/elderly/meal-points`
 Home-care Stations | "Which home-care stations are nearby?" | `get_home_care_stations` | `GET /openapi/v1/elderly/home-care-stations`
 
+## OpenClaw GitHub Install Prompt
+
+If you want OpenClaw to help install this skill from GitHub, use this:
+
+```text
+Please help me install the elderly-care skill from GitHub.
+The repository is https://github.com/xiaoliuzhuan/wuxi-elderly-care .
+Please follow the README and complete the OpenClaw installation.
+After installation, remind me to start a new session.
+```
+
+<!--
 ## Install Reality
 
 A normal installation still has two separate layers:
@@ -65,6 +77,7 @@ So the practical conclusion is:
 - cloning this repo into a skill directory is enough for skill discovery
 - cloning this repo into a skill directory is not enough for direct MCP tool calls
 - if MCP is not connected yet, you can still start the local REST API as a fallback where that environment allows local HTTP access
+-->
 
 ## One-Command Setup
 
@@ -166,25 +179,58 @@ Repository URL:
 https://github.com/xiaoliuzhuan/wuxi-elderly-care
 ```
 
-Recommended shortest install path:
+### One-line prompt for personal assistants
+
+If you are sending this to an AI coding assistant or a non-technical user, this shorter prompt is enough:
+
+```text
+Please install the elderly-care skill for me.
+The GitHub repository is https://github.com/xiaoliuzhuan/wuxi-elderly-care .
+```
+
+### Commands for technical users
+
+Run the shared steps first:
 
 ```bash
 git clone https://github.com/xiaoliuzhuan/wuxi-elderly-care.git
 cd wuxi-elderly-care
 npm install
-npm run setup:codex
 ```
 
-If you are using another supported client, replace the last command with the matching setup command:
+Then run the matching setup command for your client:
+
+OpenClaw
 
 ```bash
 npm run setup:openclaw
+```
+
+Claude Code
+
+```bash
 npm run setup:claude
+```
+
+Cursor
+
+```bash
 npm run setup:cursor
+```
+
+Codex
+
+```bash
 npm run setup:codex
 ```
 
-If you want to clone directly into a client skill directory, that also works:
+After installation, restart the client so the new skill and MCP configuration are reloaded.
+
+### Clone directly into a client skill directory
+
+If you want to clone directly into a client skill directory, use the matching path:
+
+Claude Code
 
 ```bash
 git clone https://github.com/xiaoliuzhuan/wuxi-elderly-care.git ~/.claude/skills/elderly-care
@@ -193,17 +239,13 @@ npm install
 npm run setup:claude
 ```
 
-If you want a ready-to-send installation prompt for another AI coding assistant, you can use this directly:
+Codex
 
-```text
-Please install the elderly-care skill for me.
-The GitHub repository is https://github.com/xiaoliuzhuan/wuxi-elderly-care .
-Please clone the repo, run npm install, and then run the matching setup command for the current client:
-- OpenClaw: npm run setup:openclaw
-- Claude Code: npm run setup:claude
-- Cursor: npm run setup:cursor
-- Codex: npm run setup:codex
-After installation, restart the client so the new skill and MCP configuration are reloaded.
+```bash
+git clone https://github.com/xiaoliuzhuan/wuxi-elderly-care.git ~/.codex/skills/elderly-care
+cd ~/.codex/skills/elderly-care
+npm install
+npm run setup:codex
 ```
 
 ## Connect The Bundled MCP Server
@@ -310,6 +352,7 @@ wuxi-elderly-care/
 └── package.json
 ```
 
+<!--
 ## Compatibility Conclusion
 
 The most practical conclusion right now is:
@@ -320,3 +363,4 @@ The most practical conclusion right now is:
 - Trae looks structurally compatible on this machine, but one full end-to-end product test is still recommended before making stronger public claims
 - the real integration boundary is not `SKILL.md`; it is whether the client has the bundled MCP server connected
 - for external distribution, the lightest configuration story is still just one `ELDERLY_SKILL_ACCESS_TOKEN`
+-->

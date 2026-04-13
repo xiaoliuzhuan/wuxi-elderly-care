@@ -51,6 +51,18 @@
 惠老助餐 | “新吴区旺庄街道有哪些助餐点？” | `get_meal_points` | `GET /openapi/v1/elderly/meal-points`
 居家养老站 | “附近有哪些居家养老服务站？” | `get_home_care_stations` | `GET /openapi/v1/elderly/home-care-stations`
 
+## OpenClaw GitHub 安装提示词
+
+如果你是在 OpenClaw 里让助手帮你安装，直接用这段：
+
+```text
+请帮我从 GitHub 安装 elderly-care skill。
+仓库地址是 https://github.com/xiaoliuzhuan/wuxi-elderly-care 。
+请按 README 完成 OpenClaw 安装。
+安装完成后提醒我开启一个新 session。
+```
+
+<!--
 ## 真正的安装逻辑
 
 一个“正常可用”的安装其实分成两层：
@@ -65,6 +77,7 @@
 - 只把仓库克隆进 skill 目录，已经足够让客户端“认识这个 skill”
 - 只把仓库克隆进 skill 目录，还不足以让客户端直接调用 MCP 工具
 - 如果还没接 MCP，也可以先启动本地 REST API，在支持这种方式的环境里作为 fallback
+-->
 
 ## 一键安装
 
@@ -166,25 +179,58 @@ git clone <repo-url> ~/.claude/skills/elderly-care
 https://github.com/xiaoliuzhuan/wuxi-elderly-care
 ```
 
-推荐的最短安装路径：
+### 给个人助手的一句话
+
+如果你是发给 AI 编程助手、个人助手或普通用户，直接用这段就够了：
+
+```text
+请帮我安装 elderly-care skill。
+GitHub 仓库地址是 https://github.com/xiaoliuzhuan/wuxi-elderly-care 。
+```
+
+### 给懂技术用户的命令
+
+先执行通用步骤：
 
 ```bash
 git clone https://github.com/xiaoliuzhuan/wuxi-elderly-care.git
 cd wuxi-elderly-care
 npm install
-npm run setup:codex
 ```
 
-如果你使用的是其他支持自动 setup 的客户端，把最后一行替换成对应命令即可：
+再根据客户端执行对应命令：
+
+OpenClaw
 
 ```bash
 npm run setup:openclaw
+```
+
+Claude Code
+
+```bash
 npm run setup:claude
+```
+
+Cursor
+
+```bash
 npm run setup:cursor
+```
+
+Codex
+
+```bash
 npm run setup:codex
 ```
 
-如果你希望直接克隆到某个客户端的 skill 目录，也可以这样：
+安装完成后重启客户端，让新的 skill 和 MCP 配置生效。
+
+### 直接克隆到客户端 Skill 目录
+
+如果你希望直接克隆到某个客户端的 skill 目录，也可以按客户端这样执行：
+
+Claude Code
 
 ```bash
 git clone https://github.com/xiaoliuzhuan/wuxi-elderly-care.git ~/.claude/skills/elderly-care
@@ -193,17 +239,13 @@ npm install
 npm run setup:claude
 ```
 
-如果你想把一段可以直接发给 AI 编程助手的安装指令发出去，可以直接用下面这段：
+Codex
 
-```text
-请帮我安装 elderly-care skill。
-GitHub 仓库地址是 https://github.com/xiaoliuzhuan/wuxi-elderly-care 。
-请先克隆仓库，再执行 npm install，并根据当前客户端执行对应的 setup 命令：
-- OpenClaw: npm run setup:openclaw
-- Claude Code: npm run setup:claude
-- Cursor: npm run setup:cursor
-- Codex: npm run setup:codex
-安装完成后重启客户端，让新的 skill 和 MCP 配置生效。
+```bash
+git clone https://github.com/xiaoliuzhuan/wuxi-elderly-care.git ~/.codex/skills/elderly-care
+cd ~/.codex/skills/elderly-care
+npm install
+npm run setup:codex
 ```
 
 ## 连接仓库内置 MCP Server
@@ -310,6 +352,7 @@ wuxi-elderly-care/
 └── package.json
 ```
 
+<!--
 ## 兼容性结论
 
 现在最实用的结论是：
@@ -320,3 +363,4 @@ wuxi-elderly-care/
 - Trae 在这台机器上已经能看到标准 skill 目录结构，但我还是建议你在真正对外写死之前，做一次完整的端到端实测
 - 真正的集成边界不是 `SKILL.md`，而是客户端有没有把这个仓库的 MCP server 接进去
 - 对外分发时，最轻的方式就是只让用户补一行 `ELDERLY_SKILL_ACCESS_TOKEN`
+-->
