@@ -70,12 +70,8 @@ If this skill is already installed and you want OpenClaw to update it in place, 
 Please help me update the already installed elderly-care skill to the latest version.
 The repository is https://github.com/xiaoliuzhuan/wuxi-elderly-care .
 Please follow the README and complete the OpenClaw update without uninstalling or reinstalling it; prefer updating the existing installation in place and make sure OpenClaw reloads the latest skill.
-After the update, please confirm these example questions now return usable conclusions:
-1. What activities are available tomorrow in Shangze Community?
-2. Are there any dance classes suitable for seniors?
-3. What elderly clubs are nearby?
-4. Which meal service points are available on Wangzhuang Street in Xinwu District?
-5. Which home-care stations are nearby?
+After the update, please confirm this example question now returns a usable conclusion:
+What activities are available tomorrow in Shangze Community?
 If the current session still does not recognize the updated skill, remind me to restart OpenClaw or start a new session.
 ```
 
