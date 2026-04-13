@@ -59,7 +59,7 @@
 请帮我从 GitHub 安装 elderly-care skill。
 仓库地址是 https://github.com/xiaoliuzhuan/wuxi-elderly-care 。
 请按 README 完成 OpenClaw 安装。
-安装完成后提醒我开启一个新 session。
+如果当前会话未识别到这个 skill，请提醒我开启一个新 session。
 ```
 
 <!--

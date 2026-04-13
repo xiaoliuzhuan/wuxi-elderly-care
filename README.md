@@ -59,7 +59,7 @@ If you want OpenClaw to help install this skill from GitHub, use this:
 Please help me install the elderly-care skill from GitHub.
 The repository is https://github.com/xiaoliuzhuan/wuxi-elderly-care .
 Please follow the README and complete the OpenClaw installation.
-After installation, remind me to start a new session.
+If the current session does not recognize the skill, remind me to start a new session.
 ```
 
 <!--
